@@ -205,7 +205,7 @@ export const usePackageBuilder = () => {
 
       // Send email using Resend Edge Function with proper authorization
       const { data: { session } } = await supabase.auth.getSession();
-      await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sendBookingEmail`, {
+      const emailResponse = await fetch('https://jshnsfvvsmjlxlbdpehf.supabase.co/functions/v1/sendBookingEmail', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -213,6 +213,12 @@ export const usePackageBuilder = () => {
         },
         body: JSON.stringify({ record: bookingData }),
       });
+
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.json();
+        console.error('Email sending failed:', errorData);
+        throw new Error('Failed to send confirmation email');
+      }
 
       setShowSuccess(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
